@@ -1,47 +1,59 @@
 import s from "./ContactForm.module.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { nanoid } from "nanoid";
+import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import { addContact } from "../../redux/contactsSlice";
 
-const ContactForm = ({ addContacts }) => {
-  const initialValues = {
-    name: "",
-    number: "",
-  };
-  const handleSubmit = (values, action) => {
-    addContacts(values);
-    action.resetForm();
-  };
-  const patternLetters = /^[a-zA-Zа-яА-ЯёЁ]+$/;
-  const patternPhone = /^\d{3}-\d{2}-\d{2}$/;
+const patternLetters = /^[a-zA-Zа-яА-ЯёЁ]+$/;
+const patternPhone = /^\d{3}-\d{2}-\d{2}$/;
 
-  const ContactSchema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "min 3 characters")
-      .max(50, "max 50 characters")
-      .required("This field is required")
-      .matches(patternLetters, "Enter only letters"),
-    number: Yup.string()
-      .min(7, "min 7 numbers")
-      .max(9, "max 7 numbers")
-      .required("This field is required")
-      .matches(patternPhone, "Number format ХХХ-ХХ-ХХ"),
-  });
+const ContactSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(3, "min 3 characters")
+    .max(50, "max 50 characters")
+    .required("This field is required")
+    .matches(patternLetters, "Enter only letters"),
+  number: Yup.string()
+    .min(7, "min 7 numbers")
+    .max(9, "max 7 numbers")
+    .required("This field is required")
+    .matches(patternPhone, "Number format ХХХ-ХХ-ХХ"),
+});
+
+const ContactForm = () => {
+  const dispatch = useDispatch();
+
+  const hadleSubmit = (values, { resetForm }) => {
+    dispatch(addContact({ ...values, id: nanoid() }));
+    resetForm();
+  };
 
   return (
     <Formik
-      initialValues={initialValues}
-      onSubmit={handleSubmit}
+      initialValues={{ name: "", number: "" }}
+      onSubmit={hadleSubmit}
       validationSchema={ContactSchema}
     >
       <Form className={s.form}>
         <label className={s.inputBox}>
           Name
-          <Field className={s.formField} type="text" name="name"></Field>
+          <Field
+            className={s.formField}
+            type="text"
+            name="name"
+            id="name"
+          ></Field>
           <ErrorMessage name="name" component="p" className={s.error} />
         </label>
         <label className={s.inputBox}>
           Number
-          <Field className={s.formField} type="text" name="number"></Field>
+          <Field
+            className={s.formField}
+            type="text"
+            name="number"
+            id="number"
+          ></Field>
           <ErrorMessage name="number" component="p" className={s.error} />
         </label>
         <button className={s.formBtn} type="submit">
